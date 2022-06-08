@@ -185,19 +185,7 @@ nohup bin/kibana &
 
 ```
 
-<br>
-
-### 04. GCP VPC Network Firewall 설정 (5601, 9000 port 허용)
-
-<br>
-
-![image](https://user-images.githubusercontent.com/30817824/172518925-0a960d8a-8a56-4d92-9af6-bf24231fcf53.png)
-
-![image](https://user-images.githubusercontent.com/30817824/172541307-5011100c-2428-4d12-aa07-93d52feeb89d.png)
-
-
-
-#### [ERROR 유형 1 ] Port 5601 is already in use. Another instance of Kibana may be running!
+#### [ ERROR 유형 1 ] Port 5601 is already in use. Another instance of Kibana may be running!
 - kibana가 현재 실행중. (설정이나 재시작이 필욯지 않다면 현재 실해 중인 kibana 사용)
 - 재시작이 필요하다면, 아래와 같이 process id를 찾아서 해당 process를 종료한 후, kibana 재시작
 ```
@@ -208,6 +196,32 @@ tcp        0      0 0.0.0.0:5601            0.0.0.0:*               LISTEN      
 ## process 종료
 kill -9 16998
 ```
+
+#### [ ERROR 유형 2 ] Unable to connect to Elasticsearch. Error: Request Timeout
+- ElasticSearch가 현재 실행중이지만, 위에서 설정한 Master Node의 후보 서버 목록에 오타가 있을 수 있다
+
+```
+cluster.initial_master_nodes: ["kakfa-monitoring"]
+=>
+cluster.initial_master_nodes: ["kafka-monitoring"]
+```
+
+<br>
+
+### 04. GCP VPC Network Firewall 설정 (5601, 9000 port 허용)
+
+<br>
+
+![image](https://user-images.githubusercontent.com/30817824/172518925-0a960d8a-8a56-4d92-9af6-bf24231fcf53.png)
+
+![image](https://user-images.githubusercontent.com/30817824/172541307-5011100c-2428-4d12-aa07-93d52feeb89d.png)
+
+<br>
+
+#### Kibana 접속 확인
+
+![image](https://user-images.githubusercontent.com/30817824/172572049-ba31a01c-239c-42d5-8006-e966c95544aa.png)
+
 
 <br>
 
@@ -229,8 +243,50 @@ bin/logstash-plugin install logstash-input-jmx
 ### 06. JMX metric 설정 (kafka broker 용)
 ```
 mkdir ~/jmx_conf
-vi ~/jmx_conf/broker01.conf
 ```
+
+#### vi ~/jmx_conf/broker01.conf
+```
+{
+  "host" : "broker-01", 
+  "port" : 9999,
+  "alias" : "broker01",
+  "queries" : [
+  {
+    "object_name" : "kafka.server:type=BrokerTopicMetrics,name=MessagesInPerSec",
+    "attributes" : [ "OneMinuteRate" ],
+    "object_alias" : "${type}.${name}"
+  },
+  {
+    "object_name" : "kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec",
+    "attributes" : [ "OneMinuteRate" ],
+    "object_alias" : "${type}.${name}"
+  },
+  {
+    "object_name" : "kafka.server:type=BrokerTopicMetrics,name=BytesOutPerSec",
+    "attributes" : [ "OneMinuteRate" ],
+    "object_alias" : "${type}.${name}"
+  },
+  {
+    "object_name" : "kafka.server:type=ReplicaManager,name=UnderReplicatedPartitions",
+    "attributes" : [ "Value" ],
+    "object_alias" : "${type}.${name}"
+  },
+  {
+    "object_name" : "kafka.network:type=RequestMetrics,name=TotalTimeMs,request=Produce",
+    "attributes" : [ "Mean" ],
+    "object_alias" : "${type}.${name}"
+  },
+  {
+    "object_name" : "kafka.network:type=RequestMetrics,name=TotalTimeMs,request=FetchConsumer",
+    "attributes" : [ "Mean" ],
+    "object_alias" : "${type}.${name}"
+  }
+ ]
+}
+```
+
+
 
 <br>
 
@@ -239,13 +295,42 @@ vi ~/jmx_conf/broker01.conf
 - elasticsearch로 전송하는 logstash 설정
 ```
 mkdir ~/logstash_conf
-vi ~/logstash_conf/logstash_jmx.conf
+```
 
+#### vi ~/logstash_conf/logstash_jmx.conf
+
+```
+input {
+ jmx {
+  path => "/home/${USER}/jmx_conf"
+  polling_frequency => 1
+ }
+}
+
+output{
+ stdout {
+  codec => rubydebug
+ }
+ elasticsearch {
+   hosts => "localhost:9200"
+   index => "kafka_mon"
+ }
+}
+```
+
+```
 cd ~/logstash-7.10.2/
 bin/logstash -f ~/logstash_conf/logstash_jmx.conf
 ```
+#### [ ERROR 유형 ] Connection Refused localhost:9999 java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException
+- kafka 기동 시 앞에 JMX_PORT 설정 안 했을 수 있다
 
-#### 생성된 index (kakfa-mon) 확인 
+![image](https://user-images.githubusercontent.com/30817824/172591060-2a5e3063-0c84-4606-94af-11a16c30a1ae.png)
+
+<br>
+
+
+#### 생성된 index (kakfa_mon) 확인 
 ```
 > curl -X GET "localhost:9200/_cat/indices/"
 yellow open kafka_mon 6ULkg30FT7aQuxAI7ua7yg 1 1 18 0   32kb   32kb
