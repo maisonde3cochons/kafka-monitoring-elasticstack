@@ -338,8 +338,58 @@ yellow open kafka_mon 6ULkg30FT7aQuxAI7ua7yg 1 1 18 0   32kb   32kb
 <br>
 
 
-### 08. Web Browser에서 접속 확인
+### 08. Kibana를 통한 수집 Data 시각화
 
-```
-http://<External IP>:9000
-```
+<br>
+
+![image](https://user-images.githubusercontent.com/30817824/172592672-af2f707a-3bce-47d5-bcd5-1149fadd6a18.png)
+
+<br>
+
+![image](https://user-images.githubusercontent.com/30817824/172596624-c8df6aae-6356-4afa-a9d3-9ee49a8876d8.png)
+
+<br>
+
+![image](https://user-images.githubusercontent.com/30817824/172596648-afc30bc9-c374-44ba-b2ef-298057a68498.png)
+
+<br>
+
+![image](https://user-images.githubusercontent.com/30817824/172596724-de87e54d-82ce-4da6-83bc-bd36b92d6c51.png)
+
+<br>
+
+![image](https://user-images.githubusercontent.com/30817824/172596770-9d6548b1-58dd-4ea5-9de9-e4bcb47d3142.png)
+
+<br>
+
+![image](https://user-images.githubusercontent.com/30817824/172596801-e9b9dd33-483e-4661-8a64-1740c1384799.png)
+
+<br>
+
+![image](https://user-images.githubusercontent.com/30817824/172596827-24eddcbd-e7fb-4779-8db9-b0cf5254159f.png)
+
+<br>
+
+> #### [Graph에 Filter 적용 방법]
+- Discover에서 metric_path를 선택하여 Visualize로 돌아와 filter로 입력한다
+
+![image](https://user-images.githubusercontent.com/30817824/172596869-61e106fa-df4e-455b-a85b-5f95d455d335.png)
+
+<br>
+
+![image](https://user-images.githubusercontent.com/30817824/172596973-0d4606ae-c375-48c9-a55a-63ba54c4738b.png)
+
+<br>
+
+![image](https://user-images.githubusercontent.com/30817824/172596998-d596c65e-0840-4cbd-9a53-2014a23af30f.png)
+
+<br>
+
+##### 이렇게 Save까지 완료된 Graph는 Dashboard에 Add 해서 보여줄 수 있다
+
+
+
+
+
+
+
