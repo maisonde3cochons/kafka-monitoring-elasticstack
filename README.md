@@ -127,7 +127,7 @@ rm -rf elasticsearch-oss-7.10.2-linux-x86_64.tar.gz
 > vi config/elasticsearch.yml
 
 ## Master Node의 후보 서버 목록을 적어준다. (여기서는 1대 이므로 본인의 서버 정보만)
-cluster.initial_master_nodes: ["kakfa-monitoring"]
+cluster.initial_master_nodes: ["kafka-monitoring"]
 
 ## 위의 설정에서 IP를 입력하면, 아래 오류 발생
     - skipping cluster bootstrapping as local node does not match bootstrap requirements: [34.64.85.xx]
